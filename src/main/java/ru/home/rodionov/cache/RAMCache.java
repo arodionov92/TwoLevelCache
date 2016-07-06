@@ -34,6 +34,7 @@ public class RAMCache implements ICache {
     @Override
     public void add(Object key, Object value) {
         CacheObject element = new CacheObject(key, value, TTL);
+        removeNotActual();
         try {
             lock.lock();
             cache.add(element);
@@ -95,6 +96,7 @@ public class RAMCache implements ICache {
      */
     @Override
     public CacheObject remove(int index) {
+        removeNotActual();
         CacheObject removedObject;
         try {
             lock.lock();
@@ -110,6 +112,7 @@ public class RAMCache implements ICache {
      */
     @Override
     public int size() {
+        removeNotActual();
         return cache.size();
     }
 
@@ -121,6 +124,7 @@ public class RAMCache implements ICache {
     public Object get(Object key) {
         int elemIndex = 0;
         CacheObject element = null;
+        removeNotActual();
 
         for (int i = 0; i < cache.size(); i++) {
             CacheObject obj = cache.get(i);

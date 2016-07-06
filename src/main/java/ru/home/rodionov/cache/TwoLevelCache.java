@@ -29,7 +29,6 @@ public class TwoLevelCache implements ICache {
      */
     @Override
     public void add(Object key, Object value) {
-        removeNotActual();
         if (firstLevel.size() < firstLevelMaxSize) {
             firstLevel.add(key, value);
         } else {
@@ -92,7 +91,6 @@ public class TwoLevelCache implements ICache {
      */
     @Override
     public int size() {
-        removeNotActual();
         return firstLevel.size() + secondLevel.size();
     }
 
@@ -102,7 +100,6 @@ public class TwoLevelCache implements ICache {
      */
     @Override
     public Object get(Object key) {
-        removeNotActual();
         Object tempValue = firstLevel.get(key);
 
         if (tempValue == null) {

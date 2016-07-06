@@ -10,16 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TwoLevelCacheTest {
-
-    public static final int ONE_SECOND = 1000;
-    public static final int TEN_SECONDS = 10 * ONE_SECOND;
+    private static final int ONE_SECOND = 1000;
     private static TwoLevelCache twc;
     private static List<Object> keys;
     private static List<Object> values;
 
     @BeforeClass
     public static void setUp() {
-        String filepath = "C:\\Users\\FaiFlay\\Cache.rc";
+        String filepath = "C:\\Users\\Rodionov\\Cache.fc";
         RAMCache rc = new RAMCache(new LRUAlgorithm(), ONE_SECOND);
         FileCache fc = new FileCache(filepath, new LRUAlgorithm(), ONE_SECOND);
         twc = new TwoLevelCache(rc, fc, 10, 10);

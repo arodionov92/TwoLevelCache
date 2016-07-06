@@ -45,7 +45,6 @@ public class FileCache implements ICache {
     public void add(Object key, Object value) {
         CacheObject element = new CacheObject(key, value, TTL);
         addLast(element);
-        size.getAndIncrement();
     }
 
     /**
@@ -114,8 +113,9 @@ public class FileCache implements ICache {
      */
     @Override
     public CacheObject remove(int index) {
-        LinkedList<CacheObject> buffer = getListFromFile();
+        LinkedList<CacheObject> buffer = removeNotActual();
         CacheObject removedObject;
+
         try {
             lock.lock();
             removedObject = buffer.remove(index);
@@ -132,6 +132,7 @@ public class FileCache implements ICache {
      */
     @Override
     public int size() {
+        removeNotActual();
         return size.get();
     }
 
@@ -141,7 +142,7 @@ public class FileCache implements ICache {
      */
     @Override
     public Object get(Object key) {
-        LinkedList<CacheObject> buffer = getListFromFile();
+        LinkedList<CacheObject> buffer = removeNotActual();
         CacheObject element = null;
         for (int i = 0; i < size.get(); i++) {
             if (key.equals(buffer.get(i).getKey())) {
@@ -187,7 +188,7 @@ public class FileCache implements ICache {
      */
     @Override
     public int indexOf(Object key) {
-        LinkedList<CacheObject> list = getListFromFile();
+        LinkedList<CacheObject> list = removeNotActual();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getKey().equals(key)) {
                 return i;
