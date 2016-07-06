@@ -39,8 +39,8 @@ public class RAMCacheTest {
             rc.add(keys.get(i), values.get(i));
         }
         int initialSize = rc.size();
-        Thread.sleep(ONE_SECOND * 2);
-        Assert.assertTrue(rc.size() < initialSize);
+        Thread.sleep(ONE_SECOND);
+        Assert.assertTrue("All elements are valid", rc.size() < initialSize);
     }
 
 }

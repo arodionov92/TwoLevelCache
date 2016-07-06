@@ -39,8 +39,8 @@ public class FileCacheTest {
             fc.add(keys.get(i), values.get(i));
         }
         int initialSize = fc.size();
-        Thread.sleep(ONE_SECOND * 2);
-        Assert.assertTrue(fc.size() < initialSize);
+        Thread.sleep(ONE_SECOND);
+        Assert.assertTrue("All elements are valid", fc.size() < initialSize);
     }
 
 }

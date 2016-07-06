@@ -54,7 +54,7 @@ public class TwoLevelCacheTest {
         }
         int initialSize = twc.size();
         Thread.sleep(ONE_SECOND);
-        Assert.assertTrue(twc.size()<initialSize);
+        Assert.assertTrue("All elements are valid", twc.size() < initialSize);
     }
 
 }
