@@ -35,7 +35,7 @@ public class TwoLevelCacheTest {
             twc.add(keys.get(i), values.get(i));
         }
         twc.get(keys.get(5));
-        Assert.assertEquals("Element is not shifted to first position",0, twc.indexOf(keys.get(5)));
+        Assert.assertEquals("Element is not shifted to first position", 0, twc.indexOf(keys.get(5)));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class TwoLevelCacheTest {
             twc.add(keys.get(i), values.get(i));
         }
         twc.get(keys.get(14));
-        Assert.assertEquals("Element is not shifted to first position",0, twc.indexOf(keys.get(14)));
+        Assert.assertEquals("Element is not shifted to first position", 0, twc.indexOf(keys.get(14)));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TwoLevelCacheTest {
         }
         int initialSize = twc.size();
         Thread.sleep(ONE_SECOND);
-        Assert.assertTrue("All elements are valid", twc.size() < initialSize);
+        Assert.assertTrue("Cache invalidation hasn't worked successfully", twc.size() < initialSize);
     }
 
 }

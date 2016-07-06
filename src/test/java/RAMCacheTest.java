@@ -40,7 +40,7 @@ public class RAMCacheTest {
         }
         int initialSize = rc.size();
         Thread.sleep(ONE_SECOND);
-        Assert.assertTrue("All elements are valid", rc.size() < initialSize);
+        Assert.assertTrue("Cache invalidation hasn't worked successfully", rc.size() < initialSize);
     }
 
 }

@@ -40,7 +40,7 @@ public class FileCacheTest {
         }
         int initialSize = fc.size();
         Thread.sleep(ONE_SECOND);
-        Assert.assertTrue("All elements are valid", fc.size() < initialSize);
+        Assert.assertTrue("Cache invalidation hasn't worked successfully", fc.size() < initialSize);
     }
 
 }
