@@ -138,7 +138,7 @@ public class TwoLevelCache implements ICache {
         if (firstLevel.indexOf(key) >= 0) {
             return firstLevel.indexOf(key);
         } else if (secondLevel.indexOf(key) >= 0) {
-            return secondLevel.indexOf(key);
+            return secondLevel.indexOf(key) + firstLevelMaxSize;
         }
         return -1;
     }
