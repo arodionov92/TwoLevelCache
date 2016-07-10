@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TwoLevelCacheLFUTest {
-    private static final int ONE_SECOND = 100000;
+    private static final int ONE_SECOND = 1000;
     private static TwoLevelCache twc;
     private static List<Object> keys;
     private static List<Object> values;
