@@ -19,21 +19,21 @@ public class CacheObject<K extends Object & Serializable, V extends Object & Ser
      * @param value - value
      * @param TTL   - storage time in milliseconds
      */
-    CacheObject(K key, V value, long TTL) {
+    public CacheObject(K key, V value, long TTL) {
         this.key = key;
         this.value = value;
         endOfLife = System.currentTimeMillis() + TTL;
     }
 
-    long getEndOfLife() {
+    public long getEndOfLife() {
         return endOfLife;
     }
 
-    K getKey() {
+    public K getKey() {
         return key;
     }
 
-    V getValue() {
+    public V getValue() {
         return value;
     }
 }
