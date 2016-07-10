@@ -17,7 +17,7 @@ public class TwoLevelCacheLRUTest {
 
     @BeforeClass
     public static void setUp() {
-        String filepath = "C:\\Users\\Rodionov\\Cache.fc";
+        String filepath = "C:\\Users\\FaiFlay\\Cache.fc";
         RAMCache rc = new RAMCache(new LRUAlgorithm(), ONE_SECOND);
         FileCache fc = new FileCache(filepath, new LRUAlgorithm(), ONE_SECOND);
         twc = new TwoLevelCache(rc, fc, 10, 10);

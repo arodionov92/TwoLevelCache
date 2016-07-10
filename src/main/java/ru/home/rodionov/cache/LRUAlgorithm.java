@@ -3,18 +3,19 @@ package ru.home.rodionov.cache;
 import java.util.LinkedList;
 
 /**
- * Implementation of "least recently used" algorithm
+ * Implementation of "least frequently used" algorithm
  */
-public class LRUAlgorithm implements CacheAlgorithm {
+public class LRUAlgorithm extends CacheAlgorithm {
+
     /**
-     *
-     * @param source - {@link LinkedList} for changing
-     * @param key - index of element for shifting
+     * @param source  - {@link LinkedList} for changing
+     * @param element - element for shifting
      * @return
      */
     @Override
-    public LinkedList shift(LinkedList source, int key) {
-        source.addFirst(source.remove(key));
+    public LinkedList shift(LinkedList source, CacheObject element) {
+        source.remove(element);
+        source.addFirst(element);
         return source;
     }
 }

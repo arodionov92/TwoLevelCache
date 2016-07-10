@@ -4,22 +4,22 @@ import java.io.Serializable;
 
 /**
  * Data structure for store any data inside cache as key-value
+ *
  * @param <K> - parametric key
  * @param <V> - parametric value
  */
-public class CacheObject <K extends Object & Serializable,V extends Object & Serializable> implements Serializable {
+public class CacheObject<K extends Object & Serializable, V extends Object & Serializable> implements Serializable {
+    private static final long serialVersionUID = 20160704l;
     private K key;
     private V value;
     private long endOfLife;
-    private static final long serialVersionUID = 20160704l;
 
     /**
-     *
-     * @param key - key
+     * @param key   - key
      * @param value - value
-     * @param TTL - storage time in milliseconds
+     * @param TTL   - storage time in milliseconds
      */
-    public CacheObject (K key, V value, long TTL) {
+    public CacheObject(K key, V value, long TTL) {
         this.key = key;
         this.value = value;
         endOfLife = System.currentTimeMillis() + TTL;

@@ -1,6 +1,7 @@
 package ru.home.rodionov.cache;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -8,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Implementation cache data structure based on file
  */
-public class FileCache implements ICache {
+public class FileCache extends Cache {
 
     private CacheAlgorithm algorithm;
     private File file;
@@ -102,29 +103,47 @@ public class FileCache implements ICache {
         } finally {
             lock.unlock();
         }
-        size.getAndIncrement();
+        size.set(0);
     }
 
     /**
-     * Removes element by index
+     * Removes first element from cache
      *
-     * @param index
      * @return removed element
      */
     @Override
-    public CacheObject remove(int index) {
+    public CacheObject removeFirst() {
         LinkedList<CacheObject> buffer = removeNotActual();
-        CacheObject removedObject;
-
+        CacheObject removedElement;
         try {
             lock.lock();
-            removedObject = buffer.remove(index);
+            removedElement = buffer.removeFirst();
         } finally {
             lock.unlock();
         }
         rewriteFileWithList(buffer);
         size.decrementAndGet();
-        return removedObject;
+        return removedElement;
+    }
+
+    /**
+     * Removes last element from cache
+     *
+     * @return removed element
+     */
+    @Override
+    public CacheObject removeLast() {
+        LinkedList<CacheObject> buffer = removeNotActual();
+        CacheObject removedElement;
+        try {
+            lock.lock();
+            removedElement = buffer.removeLast();
+        } finally {
+            lock.unlock();
+        }
+        rewriteFileWithList(buffer);
+        size.decrementAndGet();
+        return removedElement;
     }
 
     /**
@@ -143,35 +162,37 @@ public class FileCache implements ICache {
     @Override
     public Object get(Object key) {
         LinkedList<CacheObject> buffer = removeNotActual();
-        CacheObject element = null;
-        for (int i = 0; i < size.get(); i++) {
-            if (key.equals(buffer.get(i).getKey())) {
-                element = buffer.get(i);
-                try {
-                    lock.lock();
-                    buffer = algorithm.shift(buffer, i);
-                } finally {
-                    lock.unlock();
-                }
-                rewriteFileWithList(buffer);
+        CacheObject element =
+                buffer.parallelStream()
+                        .filter(cacheObject -> key.equals(cacheObject.getKey()))
+                        .findFirst().orElse(null);
+
+        if (element != null) {
+            try {
+                lock.lock();
+                buffer = algorithm.shift(buffer, element);
+            } finally {
+                lock.unlock();
             }
+            rewriteFileWithList(buffer);
         }
+
         return element == null ? null : element.getValue();
     }
 
     /**
-     * method for remove all old elements
+     * method for removeLast all old elements
      *
      * @return actual {@link LinkedList}
      */
     public LinkedList removeNotActual() {
-        LinkedList list = getListFromFile();
-        for (int i = 0; i < list.size(); i++) {
-            CacheObject element = (CacheObject) list.get(i);
-            if (element.getEndOfLife() < System.currentTimeMillis()) {
+        LinkedList<CacheObject> list = getListFromFile();
+        Iterator<CacheObject> it = list.iterator();
+        while (it.hasNext()) {
+            if (it.next().getEndOfLife() < System.currentTimeMillis()) {
                 try {
                     lock.lock();
-                    list.remove(i);
+                    it.remove();
                 } finally {
                     lock.unlock();
                 }
@@ -189,10 +210,10 @@ public class FileCache implements ICache {
     @Override
     public int indexOf(Object key) {
         LinkedList<CacheObject> list = removeNotActual();
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getKey().equals(key)) {
-                return i;
-            }
+        int i = 0;
+        for (CacheObject obj : list) {
+            if (key.equals(obj.getKey())) return i;
+            i++;
         }
         return -1;
     }
@@ -202,8 +223,8 @@ public class FileCache implements ICache {
      *
      * @return cache objects as {@link LinkedList}
      */
-    private LinkedList getListFromFile() {
-        LinkedList<CacheObject> list = new LinkedList();
+    private LinkedList<CacheObject> getListFromFile() {
+        LinkedList<CacheObject> list = new LinkedList<>();
         if (size.get() > 0) {
             try {
                 lock.lock();
@@ -219,6 +240,24 @@ public class FileCache implements ICache {
             }
         }
         return list;
+    }
+
+    /**
+     * Override the cache file
+     *
+     * @param buffer updated {@link LinkedList}
+     */
+    private void rewriteFileWithList(LinkedList buffer) {
+        try {
+            lock.lock();
+            try (ObjectOutputStream output = getOutput()) {
+                output.writeObject(buffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -253,23 +292,5 @@ public class FileCache implements ICache {
             e.printStackTrace();
         }
         return output;
-    }
-
-    /**
-     * Override the cache file
-     *
-     * @param buffer updated {@link LinkedList}
-     */
-    private void rewriteFileWithList(LinkedList buffer) {
-        try {
-            lock.lock();
-            try (ObjectOutputStream output = getOutput()) {
-                output.writeObject(buffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } finally {
-            lock.unlock();
-        }
     }
 }

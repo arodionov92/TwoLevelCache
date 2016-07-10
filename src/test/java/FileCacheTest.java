@@ -15,7 +15,7 @@ public class FileCacheTest {
 
     @BeforeClass
     public static void setUp() {
-        fc = new FileCache("C:\\Users\\Rodionov\\Cache.fc\\", new LRUAlgorithm(), ONE_SECOND);
+        fc = new FileCache("C:\\Users\\FaiFlay\\Cache.fc\\", new LRUAlgorithm(), ONE_SECOND);
         keys = new ArrayList<>();
         values = new ArrayList<>();
         for (int i = 0; i < 20; i++) {

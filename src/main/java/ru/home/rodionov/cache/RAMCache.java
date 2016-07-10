@@ -1,5 +1,6 @@
 package ru.home.rodionov.cache;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -7,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Implementation cache data structure based on {@link LinkedList}
  * store the data in RAM.
  */
-public class RAMCache implements ICache {
+public class RAMCache extends Cache {
 
     private LinkedList<CacheObject> cache;
     private CacheAlgorithm algorithm;
@@ -34,13 +35,7 @@ public class RAMCache implements ICache {
     @Override
     public void add(Object key, Object value) {
         CacheObject element = new CacheObject(key, value, TTL);
-        removeNotActual();
-        try {
-            lock.lock();
-            cache.add(element);
-        } finally {
-            lock.unlock();
-        }
+        cache.addLast(element);
     }
 
     /**
@@ -76,7 +71,7 @@ public class RAMCache implements ICache {
     }
 
     /**
-     * Clears cache
+     * Clears the cache
      */
     @Override
     public void clear() {
@@ -89,22 +84,37 @@ public class RAMCache implements ICache {
     }
 
     /**
-     * Removes element by index
+     * Removes first element from cache
      *
-     * @param index
      * @return removed element
      */
     @Override
-    public CacheObject remove(int index) {
-        removeNotActual();
-        CacheObject removedObject;
+    public CacheObject removeFirst() {
+        CacheObject removedElement;
         try {
             lock.lock();
-            removedObject = cache.remove(index);
+            removedElement = cache.removeFirst();
         } finally {
             lock.unlock();
         }
-        return removedObject;
+        return removedElement;
+    }
+
+    /**
+     * Removes last element from cache
+     *
+     * @return removed element
+     */
+    @Override
+    public CacheObject removeLast() {
+        CacheObject removedElement;
+        try {
+            lock.lock();
+            removedElement = cache.removeLast();
+        } finally {
+            lock.unlock();
+        }
+        return removedElement;
     }
 
     /**
@@ -118,27 +128,19 @@ public class RAMCache implements ICache {
 
     /**
      * @param key
-     * @return value by key
+     * @return value by key or null if not exists
      */
     @Override
     public Object get(Object key) {
-        int elemIndex = 0;
-        CacheObject element = null;
         removeNotActual();
-
-        for (int i = 0; i < cache.size(); i++) {
-            CacheObject obj = cache.get(i);
-            if (obj.getKey().equals(key)) {
-                elemIndex = i;
-                element = obj;
-                break;
-            }
-        }
-
-        if (elemIndex > 0) {
+        CacheObject element =
+                cache.stream()
+                        .filter(cacheObject -> key.equals(cacheObject.getKey()))
+                        .findAny().orElse(null);
+        if (element != null) {
             try {
                 lock.lock();
-                cache = algorithm.shift(cache, elemIndex);
+                cache = algorithm.shift(cache, element);
             } finally {
                 lock.unlock();
             }
@@ -147,35 +149,36 @@ public class RAMCache implements ICache {
     }
 
     /**
-     * method for remove all old elements
+     * method for removeLast all old elements
      *
      * @return actual {@link LinkedList}
      */
     @Override
     public LinkedList removeNotActual() {
-        for (int i = 0; i < cache.size(); i++) {
-            if (cache.get(i).getEndOfLife() < System.currentTimeMillis()) {
+        Iterator<CacheObject> it = cache.iterator();
+        while (it.hasNext()) {
+            if (it.next().getEndOfLife() < System.currentTimeMillis()) {
                 try {
                     lock.lock();
-                    cache.remove(i);
+                    it.remove();
                 } finally {
                     lock.unlock();
                 }
+                }
             }
-        }
         return cache;
     }
 
     /**
      * @param key - key of the element
-     * @return index of the value or -1 if this cache does not contain the element
+     * @return index o the value or -1 if this cache does not contain the element
      */
     @Override
     public int indexOf(Object key) {
-        for (int i = 0; i < cache.size(); i++) {
-            if (key.equals(cache.get(i).getKey())) {
-                return i;
-            }
+        int i = 0;
+        for (CacheObject obj : cache) {
+            if (key.equals(obj.getKey())) return i;
+            i++;
         }
         return -1;
     }

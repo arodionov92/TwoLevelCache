@@ -2,19 +2,19 @@ package ru.home.rodionov.cache;
 
 import java.util.LinkedList;
 
-public class TwoLevelCache implements ICache {
-    private ICache firstLevel;
-    private ICache secondLevel;
+public class TwoLevelCache extends Cache {
+    private Cache firstLevel;
+    private Cache secondLevel;
     private int firstLevelMaxSize;
     private int secondLevelMaxSize;
 
     /**
-     * @param firstLevel      - any implementation of {@link ICache}
-     * @param secondLevel     - any implementation of {@link ICache}
+     * @param firstLevel      - any implementation of {@link Cache}
+     * @param secondLevel     - any implementation of {@link Cache}
      * @param firstLevelSize  - max size of first level
      * @param secondLevelSize - max size of second level
      */
-    public TwoLevelCache(ICache firstLevel, ICache secondLevel, int firstLevelSize, int secondLevelSize) {
+    public TwoLevelCache(Cache firstLevel, Cache secondLevel, int firstLevelSize, int secondLevelSize) {
         this.firstLevel = firstLevel;
         this.secondLevel = secondLevel;
         this.firstLevelMaxSize = firstLevelSize;
@@ -33,9 +33,9 @@ public class TwoLevelCache implements ICache {
             firstLevel.add(key, value);
         } else {
             if (secondLevel.size() >= secondLevelMaxSize) {
-                secondLevel.remove(secondLevelMaxSize - 1);
+                secondLevel.removeLast();
             }
-            CacheObject shiftedElement = firstLevel.remove(firstLevelMaxSize - 1);
+            CacheObject shiftedElement = firstLevel.removeLast();
             secondLevel.addFirst(shiftedElement);
             firstLevel.add(key, value);
         }
@@ -70,20 +70,14 @@ public class TwoLevelCache implements ICache {
         secondLevel.clear();
     }
 
-    /**
-     * Removes element by index
-     *
-     * @param index
-     * @return removed element
-     */
     @Override
-    public CacheObject remove(int index) {
-        removeNotActual();
-        if (index <= firstLevelMaxSize - 1) {
-            return firstLevel.remove(index);
-        } else if ((index - firstLevelMaxSize) < secondLevelMaxSize - 1) {
-            return secondLevel.remove(index);
-        } else throw new IndexOutOfBoundsException();
+    public CacheObject removeFirst() {
+        return firstLevel.removeFirst();
+    }
+
+    @Override
+    public CacheObject removeLast() {
+        return secondLevel.removeLast();
     }
 
     /**
@@ -105,8 +99,8 @@ public class TwoLevelCache implements ICache {
         if (tempValue == null) {
             tempValue = secondLevel.get(key);
             if (secondLevel.indexOf(key) == 0) {
-                CacheObject shiftedElement = secondLevel.remove(0);
-                secondLevel.addFirst(firstLevel.remove(firstLevelMaxSize - 1));
+                CacheObject shiftedElement = secondLevel.removeFirst();
+                secondLevel.addFirst(firstLevel.removeLast());
                 firstLevel.addLast(shiftedElement);
                 firstLevel.get(shiftedElement.getKey());
             }
@@ -115,7 +109,7 @@ public class TwoLevelCache implements ICache {
     }
 
     /**
-     * method for remove all old elements
+     * method for removeLast all old elements
      *
      * @return actual {@link LinkedList}
      */
@@ -150,7 +144,7 @@ public class TwoLevelCache implements ICache {
         int shiftRange = firstLevelMaxSize - firstLevel.size();
         for (int i = 1; i < shiftRange; i++) {
             if (secondLevel.size() > 0) {
-                firstLevel.addLast(secondLevel.remove(0));
+                firstLevel.addLast(secondLevel.removeFirst());
             }
         }
     }

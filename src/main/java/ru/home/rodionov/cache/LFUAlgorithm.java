@@ -2,15 +2,23 @@ package ru.home.rodionov.cache;
 
 import java.util.LinkedList;
 
-public class LFUAlgorithm implements CacheAlgorithm {
-    @Override
-    public LinkedList shift(LinkedList source, int key) {
-        if (key > 0) {
-            Object shiftedElement = source.get(key);
-            source.set(key, source.get(key - 1));
-            source.set(key - 1, shiftedElement);
-        }
+/**
+ * Implementation of "least recently used" algorithm
+ */
+public class LFUAlgorithm extends CacheAlgorithm {
 
+    /**
+     * @param source  - {@link LinkedList} for changing
+     * @param element - element for shifting
+     * @return
+     */
+    @Override
+    public LinkedList shift(LinkedList source, CacheObject element) {
+        int index = source.indexOf(element);
+        if (index != 0) {
+            source.set(index, source.get(index - 1));
+            source.set(index - 1, element);
+        }
         return source;
     }
 }

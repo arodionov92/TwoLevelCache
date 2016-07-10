@@ -1,7 +1,10 @@
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.home.rodionov.cache.*;
+import ru.home.rodionov.cache.FileCache;
+import ru.home.rodionov.cache.LFUAlgorithm;
+import ru.home.rodionov.cache.RAMCache;
+import ru.home.rodionov.cache.TwoLevelCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +18,7 @@ public class TwoLevelCacheLFUTest {
     @BeforeClass
     public static void setUp() {
         String filepath = "C:\\Users\\FaiFlay\\Cache.fc";
-        RAMCache rc = new RAMCache(new LRUAlgorithm(), ONE_SECOND);
+        RAMCache rc = new RAMCache(new LFUAlgorithm(), ONE_SECOND);
         FileCache fc = new FileCache(filepath, new LFUAlgorithm(), ONE_SECOND);
         twc = new TwoLevelCache(rc, fc, 10, 10);
         keys = new ArrayList<>();
@@ -50,7 +53,7 @@ public class TwoLevelCacheLFUTest {
             twc.add(keys.get(i), values.get(i));
         }
         twc.get("key_18");
-        Assert.assertEquals("", 0, twc.indexOf("key_18"));
+        Assert.assertEquals("", 8, twc.indexOf("key_18"));
     }
 
 
