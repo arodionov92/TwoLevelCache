@@ -10,10 +10,10 @@ public class LRUAlgorithm extends CacheAlgorithm {
     /**
      * @param source  - {@link LinkedList} for changing
      * @param element - element for shifting
-     * @return
+     * @return shifted {@link LinkedList}
      */
     @Override
-    public LinkedList shift(LinkedList source, CacheObject element) {
+    public LinkedList<CacheObject> shift(LinkedList<CacheObject> source, CacheObject element) {
         source.remove(element);
         source.addFirst(element);
         return source;

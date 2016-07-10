@@ -4,14 +4,12 @@ import java.util.LinkedList;
 
 /**
  * Displacement algorithm for cache
- *
- * @param <K> any implementation of {@link LinkedList}
  */
-public abstract class CacheAlgorithm<K extends LinkedList> {
+public abstract class CacheAlgorithm {
     /**
-     * @param source - {@link LinkedList} for changing
+     * @param source - {@link LinkedList} of {@link CacheObject} for changing
      * @param key    - index of element for shifting
-     * @return - changed {@link LinkedList}
+     * @return - changed  {@link LinkedList} of {@link CacheObject}
      */
-    abstract K shift(LinkedList source, CacheObject key);
+    abstract LinkedList<CacheObject> shift(LinkedList<CacheObject> source, CacheObject key);
 }

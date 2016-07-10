@@ -32,6 +32,7 @@ public class FileCache extends Cache {
         try {
             file.createNewFile();
         } catch (IOException e) {
+            System.err.println(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -43,6 +44,8 @@ public class FileCache extends Cache {
      * @param value - value
      */
     @Override
+    @SuppressWarnings("unchecked")
+    //TODO rework to type safe
     public void add(Object key, Object value) {
         CacheObject element = new CacheObject(key, value, TTL);
         addLast(element);
@@ -56,7 +59,7 @@ public class FileCache extends Cache {
     @Override
     public void addFirst(CacheObject element) {
         removeNotActual();
-        LinkedList list = getListFromFile();
+        LinkedList<CacheObject> list = getListFromFile();
         try {
             lock.lock();
             list.addFirst(element);
@@ -70,7 +73,7 @@ public class FileCache extends Cache {
     /**
      * Append element to the end of this cache
      *
-     * @param element
+     * @param element - the element to add
      */
     @Override
     public void addLast(CacheObject element) {
@@ -94,11 +97,13 @@ public class FileCache extends Cache {
         try {
             lock.lock();
             ObjectOutput output = getOutput();
-            output.write((new String()).getBytes());
+            output.write("".getBytes());
             output.close();
         } catch (FileNotFoundException e) {
+            System.err.println("File not found");
             e.printStackTrace();
         } catch (IOException e) {
+            System.err.println("Error while clearing cache");
             e.printStackTrace();
         } finally {
             lock.unlock();
@@ -156,7 +161,7 @@ public class FileCache extends Cache {
     }
 
     /**
-     * @param key
+     * @param key - key
      * @return value by key
      */
     @Override
@@ -185,7 +190,7 @@ public class FileCache extends Cache {
      *
      * @return actual {@link LinkedList}
      */
-    public LinkedList removeNotActual() {
+    public LinkedList<CacheObject> removeNotActual() {
         LinkedList<CacheObject> list = getListFromFile();
         Iterator<CacheObject> it = list.iterator();
         while (it.hasNext()) {
@@ -223,6 +228,7 @@ public class FileCache extends Cache {
      *
      * @return cache objects as {@link LinkedList}
      */
+    @SuppressWarnings("unchecked")
     private LinkedList<CacheObject> getListFromFile() {
         LinkedList<CacheObject> list = new LinkedList<>();
         if (size.get() > 0) {
@@ -230,9 +236,7 @@ public class FileCache extends Cache {
                 lock.lock();
                 try (ObjectInputStream input = getInput()) {
                     list = (LinkedList<CacheObject>) input.readObject();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException | IOException e) {
                     e.printStackTrace();
                 }
             } finally {
@@ -269,9 +273,8 @@ public class FileCache extends Cache {
             FileInputStream fin = new FileInputStream(file);
             BufferedInputStream buffer = new BufferedInputStream(fin);
             input = new ObjectInputStream(buffer);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
+            System.err.println("");
             e.printStackTrace();
         }
         return input;
@@ -286,8 +289,6 @@ public class FileCache extends Cache {
             FileOutputStream fou = new FileOutputStream(file);
             BufferedOutputStream buffer = new BufferedOutputStream(fou);
             output = new ObjectOutputStream(buffer);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -21,7 +21,7 @@ public class RAMCache extends Cache {
      */
     public RAMCache(CacheAlgorithm algorithm, long TTL) {
         this.algorithm = algorithm;
-        this.cache = new LinkedList();
+        this.cache = new LinkedList<>();
         this.TTL = TTL;
 
     }
@@ -41,7 +41,7 @@ public class RAMCache extends Cache {
     /**
      * Inserts element in the beginning of this cache
      *
-     * @param element - element
+     * @param element - the element to add
      */
     @Override
     public void addFirst(CacheObject element) {
@@ -57,7 +57,7 @@ public class RAMCache extends Cache {
     /**
      * Append element to the end of this cache
      *
-     * @param element
+     * @param element - the element to add
      */
     @Override
     public void addLast(CacheObject element) {
@@ -127,7 +127,7 @@ public class RAMCache extends Cache {
     }
 
     /**
-     * @param key
+     * @param key - key
      * @return value by key or null if not exists
      */
     @Override
@@ -164,8 +164,8 @@ public class RAMCache extends Cache {
                 } finally {
                     lock.unlock();
                 }
-                }
             }
+        }
         return cache;
     }
 

@@ -10,10 +10,10 @@ public class LFUAlgorithm extends CacheAlgorithm {
     /**
      * @param source  - {@link LinkedList} for changing
      * @param element - element for shifting
-     * @return
+     * @return shifted {@link LinkedList}
      */
     @Override
-    public LinkedList shift(LinkedList source, CacheObject element) {
+    public LinkedList<CacheObject> shift(LinkedList<CacheObject> source, CacheObject element) {
         int index = source.indexOf(element);
         if (index != 0) {
             source.set(index, source.get(index - 1));
@@ -21,4 +21,5 @@ public class LFUAlgorithm extends CacheAlgorithm {
         }
         return source;
     }
+
 }

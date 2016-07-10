@@ -54,7 +54,7 @@ public class TwoLevelCache extends Cache {
     /**
      * Append element to the end of this cache
      *
-     * @param element
+     * @param element - element to add
      */
     @Override
     public void addLast(CacheObject element) {
